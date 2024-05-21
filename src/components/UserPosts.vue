@@ -1,52 +1,65 @@
 <template>
-    <div class="container">
-      <h1>Users</h1>
-      <select v-model="selectedUser">
-        <option v-for="user in users" :key="user.id" :value="user.id">
-          {{ user.name }}
-        </option>
-      </select>
-      <div v-if="isLoading" class="loading">Loading posts...</div>
-      <div v-else>
-        <h2>Posts</h2>
-        <ul>
-          <li v-for="post in posts" :key="post.id">
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.body }}</p>
-          </li>
-        </ul>
-      </div>
+  <div class="container">
+    <h1>Users</h1>
+    <select v-model="selectedUser">
+      <option v-for="user in users" :key="user.id" :value="user.id">
+        {{ user.name }}
+      </option>
+    </select>
+    <div v-if="isLoading" class="loading">Loading posts...</div>
+    <div v-else>
+      <h2>Posts</h2>
+      <ul>
+        <li v-for="post in posts" :key="post.id">
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.body }}</p>
+        </li>
+      </ul>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, watch } from "vue";
-  
-  const users = ref([]);
-  const posts = ref([]);
-  const selectedUser = ref(null);
-  const isLoading = ref(false);
-  
-  const getUsers = async () => {
-    const resource = "https://jsonplaceholder.typicode.com/users";
-    const response = await fetch(resource);
-    users.value = await response.json();
-  };
-  
-  const getPosts = async () => {
-    if (selectedUser.value !== null) {
-      posts.value = [];
-      isLoading.value = true;
-      const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${selectedUser.value}`);
-      posts.value = await response.json();
-      isLoading.value = false;
-    }
-  };
-  
-  getUsers();
-  
-  watch(selectedUser, getPosts);
-  </script>
+  </div>
+</template>
+
+<script setup>
+import { ref, defineProps, watch, defineEmits } from 'vue';
+
+const selectedUser = ref(null);
+const isLoading = ref(false);
+const users = ref([]);
+const posts = ref([]);
+
+const emits = defineEmits(['user-selected', 'posts-fetched']);
+
+const props = defineProps({
+  users: {
+    type: Array,
+    required: true,
+  },
+});
+
+const getUsers = async () => {
+  const resource = "https://jsonplaceholder.typicode.com/users";
+  const response = await fetch(resource);
+  users.value = await response.json();
+};
+
+const getPosts = async () => {
+  if (selectedUser.value !== null) {
+    isLoading.value = true;
+    const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${selectedUser.value}`);
+    posts.value = await response.json();
+    isLoading.value = false;
+    emits('posts-fetched', posts.value); // Emit event ketika posts telah di-fetch
+  }
+};
+
+getUsers();
+
+watch(selectedUser, () => {
+  getPosts();
+  emits('user-selected', selectedUser.value); // Emit event ketika user dipilih
+});
+</script>
+
   
   <style scoped>
   .container {

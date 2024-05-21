@@ -1,4 +1,3 @@
-<!-- App.vue -->
 <template>
   <div>
     <nav>
@@ -8,8 +7,17 @@
       </ul>
     </nav>
     <div>
-      <RegistrationForm v-if="selectedMenu === 'registration'" />
-      <UserPosts v-if="selectedMenu === 'posts'" />
+      <RegistrationForm 
+        v-if="selectedMenu === 'registration'"
+        @activity-added="handleActivityAdded"
+        @activity-cancelled="handleActivityCancelled"
+      />
+      <UserPosts 
+        v-if="selectedMenu === 'posts'"
+        :users="users"
+        @user-selected="handleUserSelected"
+        @posts-fetched="handlePostsFetched"
+      />
     </div>
   </div>
 </template>
@@ -25,8 +33,25 @@ export default {
   },
   data() {
     return {
-      selectedMenu: '',
+      selectedMenu: 'registration',
+      users: [],
+      posts: [],
     };
+  },
+  methods: {
+    handleActivityAdded(activity) {
+      console.log('Activity added:', activity);
+    },
+    handleActivityCancelled(activity) {
+      console.log('Activity cancelled:', activity);
+    },
+    handleUserSelected(userId) {
+      console.log('User selected:', userId);
+    },
+    handlePostsFetched(posts) {
+      console.log('Posts fetched:', posts);
+      this.posts = posts;
+    },
   },
 };
 </script>

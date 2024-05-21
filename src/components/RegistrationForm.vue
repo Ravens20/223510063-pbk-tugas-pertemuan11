@@ -1,61 +1,63 @@
 <template>
-    <div class="form-container">
-      <h2 class="form-title">Form Pendaftaran Kegiatan</h2>
-      <div class="form-group">
-        <label class="form-label" for="activity">Kegiatan:</label>
-        <input class="form-input" type="text" id="activity" v-model="newActivity">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="date">Tanggal:</label>
-        <input class="form-input" type="date" id="date" v-model="newDate">
-      </div>
-      <button class="form-button" @click="addActivity">Daftar</button>
-  
-      <h2 v-if="activities.length > 0" class="activity-list-title">Daftar Kegiatan</h2>
-      <table v-if="activities.length > 0" class="activity-table">
-        <tr v-for="(activity, index) in activities" :key="index">
-          <td>
-            <input class="activity-checkbox" type="checkbox" v-model="activity.completed" @change="toggleCompletion(activity)">
-          </td>
-          <td :class="{ 'completed': activity.completed }" class="activity-name">{{ activity.name }}</td>
-          <td class="activity-date">{{ activity.date }}</td>
-          <td><button class="activity-cancel-button" @click="cancelActivity(index)">Batalkan</button></td>
-        </tr>
-      </table>
+  <div class="form-container">
+    <h2 class="form-title">Form Pendaftaran Kegiatan</h2>
+    <div class="form-group">
+      <label class="form-label" for="activity">Kegiatan:</label>
+      <input class="form-input" type="text" id="activity" v-model="newActivity">
     </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        newActivity: '',
-        newDate: '',
-        activities: []
-      };
-    },
-    methods: {
-      addActivity() {
-        if (this.newActivity && this.newDate) {
-          this.activities.push({
-            name: this.newActivity,
-            date: this.newDate,
-            completed: false
-          });
-          this.newActivity = '';
-          this.newDate = '';
-        }
-      },
-      cancelActivity(index) {
-        this.activities.splice(index, 1);
-      },
-      toggleCompletion(activity) {
-        if (activity.completed) {
-        }
-      }
-    }
-  };
-  </script>
+    <div class="form-group">
+      <label class="form-label" for="date">Tanggal:</label>
+      <input class="form-input" type="date" id="date" v-model="newDate">
+    </div>
+    <button class="form-button" @click="addActivity">Daftar</button>
+
+    <h2 v-if="activities.length > 0" class="activity-list-title">Daftar Kegiatan</h2>
+    <table v-if="activities.length > 0" class="activity-table">
+      <tr v-for="(activity, index) in activities" :key="index">
+        <td>
+          <input class="activity-checkbox" type="checkbox" v-model="activity.completed" @change="toggleCompletion(activity)">
+        </td>
+        <td :class="{ 'completed': activity.completed }" class="activity-name">{{ activity.name }}</td>
+        <td class="activity-date">{{ activity.date }}</td>
+        <td><button class="activity-cancel-button" @click="cancelActivity(index)">Batalkan</button></td>
+      </tr>
+    </table>
+  </div>
+</template>
+
+<script setup>
+import { ref, defineEmits } from 'vue';
+
+const newActivity = ref('');
+const newDate = ref('');
+const activities = ref([]);
+
+const emits = defineEmits(['activity-added', 'activity-cancelled']);
+
+const addActivity = () => {
+  if (newActivity.value && newDate.value) {
+    const activity = {
+      name: newActivity.value,
+      date: newDate.value,
+      completed: false
+    };
+    activities.value.push(activity);
+    emits('activity-added', activity); // Emit event ketika aktivitas ditambahkan
+    newActivity.value = '';
+    newDate.value = '';
+  }
+};
+
+const cancelActivity = (index) => {
+  const activity = activities.value[index];
+  activities.value.splice(index, 1);
+  emits('activity-cancelled', activity); // Emit event ketika aktivitas dibatalkan
+};
+
+const toggleCompletion = (activity) => {
+  activity.completed = !activity.completed;
+};
+</script>
   
   <style scoped>
   .form-container {
