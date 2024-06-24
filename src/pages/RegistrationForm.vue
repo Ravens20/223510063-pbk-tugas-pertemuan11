@@ -42,7 +42,7 @@ const addActivity = () => {
       completed: false
     };
     activities.value.push(activity);
-    emits('activity-added', activity); // Emit event ketika aktivitas ditambahkan
+    emits('activity-added', activity);
     newActivity.value = '';
     newDate.value = '';
   }
@@ -51,7 +51,7 @@ const addActivity = () => {
 const cancelActivity = (index) => {
   const activity = activities.value[index];
   activities.value.splice(index, 1);
-  emits('activity-cancelled', activity); // Emit event ketika aktivitas dibatalkan
+  emits('activity-cancelled', activity);
 };
 
 const toggleCompletion = (activity) => {
